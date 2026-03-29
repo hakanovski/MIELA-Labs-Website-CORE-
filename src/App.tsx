@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
-import { Terminal, Code2, Cpu, Globe, ArrowRight, Github, ExternalLink, Sparkles, Hexagon, Network, BrainCircuit, Palette, Maximize2, X } from 'lucide-react';
+import { Terminal, Code2, Cpu, Globe, ArrowRight, Github, ExternalLink, Sparkles, Hexagon, Network, BrainCircuit, Palette, Maximize2, X, Mail, Phone, Send } from 'lucide-react';
 import { useRef, useState } from 'react';
 import MysticAura from './components/MysticAura';
 import ProjectCard from './components/ProjectCard';
@@ -33,6 +33,38 @@ const PillarHeader = ({ title, subtitle, number, color = "#C5A059" }: { title: s
 export default function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedProject, setSelectedProject] = useState<typeof digitalArtifacts[0] | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    const formData = new FormData(e.currentTarget);
+    // ⚠️ IMPORTANT: Replace this with your actual Web3Forms Access Key
+    formData.append("access_key", "632bd755-fd91-4e73-a36f-c2d735f7b1e8");
+    formData.append("subject", "New Transmission from MIELA Labs Contact Form");
+    formData.append("from_name", "MIELA Labs Portal");
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSubmitStatus('success');
+        (e.target as HTMLFormElement).reset();
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+    }
+    setIsSubmitting(false);
+    setTimeout(() => setSubmitStatus('idle'), 5000);
+  };
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -78,6 +110,7 @@ export default function App() {
             <a href="#art" className="hover:text-[#4C1D95] transition-colors">01. Digital Art</a>
             <a href="#community" className="hover:text-[#f7931a] transition-colors">02. Community</a>
             <a href="#ai" className="hover:text-[#9D4EDD] transition-colors">03. Intelligence</a>
+            <a href="#contact" className="hover:text-[#D4AF37] transition-colors">04. Contact</a>
           </div>
         </div>
       </nav>
@@ -150,11 +183,19 @@ export default function App() {
                   <h2 className="text-[10px] tracking-[0.4em] uppercase text-[#D4AF37] font-bold">Custom Digital Media Design</h2>
                 </div>
                 <h3 className="text-5xl md:text-6xl font-magick font-bold mb-6">The Digital Sorcery</h3>
-                <p className="text-xl text-white/70 font-light leading-relaxed">
-                  A proprietary module focused entirely on visual creativity, UI/UX, and code integrity. 
-                  These are closed-source, high-end digital artifacts. If you wish to license or commission 
-                  custom architectures for your brand, initiate contact.
+                <p className="text-xl text-white/70 font-light leading-relaxed mb-8">
+                  We don't just build websites; we forge digital artifacts. Whether you need to inject cutting-edge WebGL effects into your existing business platform, architect a complex web application from scratch, or code your wildest visions into reality, we are the catalyst. 
                 </p>
+                <p className="text-lg text-white/50 font-light leading-relaxed mb-8">
+                  These are closed-source, high-end digital architectures tailored for visionaries.
+                </p>
+                <a 
+                  href="#contact"
+                  className="glow-effect inline-flex items-center gap-4 px-8 py-4 rounded-full bg-white/5 border border-[#D4AF37]/30 text-xs tracking-[0.2em] uppercase font-bold hover:bg-[#D4AF37]/20 transition-all group/link text-[#D4AF37]"
+                >
+                  Initiate Project
+                  <ArrowRight className="w-4 h-4 group-hover/link:translate-x-2 transition-transform" />
+                </a>
               </div>
             </div>
 
@@ -363,6 +404,90 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* PILLAR 04: CONTACT */}
+      <section id="contact" className="py-32 px-6 relative z-10 border-t border-white/5 bg-[#13111A]">
+        <div className="max-w-7xl mx-auto">
+          <PillarHeader number="04" subtitle="Secure Channel" title="Initiate Contact" color="#D4AF37" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mt-20">
+            {/* Contact Info */}
+            <div>
+              <h3 className="text-4xl font-magick font-bold mb-6">Let's Build The Future.</h3>
+              <p className="text-xl text-white/60 font-light leading-relaxed mb-12">
+                Have an application idea? Need a mind-blowing website? Or want to inject high-end digital effects into your brand? Drop your vision below, and we'll code it into reality.
+              </p>
+              
+              <div className="space-y-8">
+                <a href="mailto:hakanyorganci@gmail.com" className="flex items-center gap-6 group">
+                  <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-[#D4AF37]/20 group-hover:border-[#D4AF37]/50 transition-all">
+                    <Mail className="w-6 h-6 text-white/70 group-hover:text-[#D4AF37] transition-colors" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] tracking-[0.3em] uppercase text-white/40 font-bold mb-1">Direct Email</div>
+                    <div className="text-xl font-light text-white/90 group-hover:text-white transition-colors">hakanyorganci@gmail.com</div>
+                  </div>
+                </a>
+                
+                <a href="tel:+14694009630" className="flex items-center gap-6 group">
+                  <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-[#D4AF37]/20 group-hover:border-[#D4AF37]/50 transition-all">
+                    <Phone className="w-6 h-6 text-white/70 group-hover:text-[#D4AF37] transition-colors" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] tracking-[0.3em] uppercase text-white/40 font-bold mb-1">Direct Line</div>
+                    <div className="text-xl font-light text-white/90 group-hover:text-white transition-colors">+1 (469) 400-9630</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            {/* Contact Form */}
+            <div className="glass-panel p-8 md:p-12 rounded-[2rem] border border-white/5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(212,175,55,0.1)_0%,transparent_70%)] rounded-full blur-[60px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+              
+              <form className="relative z-10 space-y-6" onSubmit={handleContactSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] tracking-[0.2em] uppercase text-white/50 font-bold ml-2">First Name *</label>
+                    <input type="text" name="first_name" required className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder:text-white/20 focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 outline-none transition-all font-light" placeholder="John" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] tracking-[0.2em] uppercase text-white/50 font-bold ml-2">Last Name *</label>
+                    <input type="text" name="last_name" required className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder:text-white/20 focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 outline-none transition-all font-light" placeholder="Doe" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] tracking-[0.2em] uppercase text-white/50 font-bold ml-2">Email Address *</label>
+                    <input type="email" name="email" required className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder:text-white/20 focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 outline-none transition-all font-light" placeholder="john@example.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] tracking-[0.2em] uppercase text-white/50 font-bold ml-2">Phone (Optional)</label>
+                    <input type="tel" name="phone" className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder:text-white/20 focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 outline-none transition-all font-light" placeholder="+1 (555) 000-0000" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/50 font-bold ml-2">Your Vision / Project Details *</label>
+                  <textarea name="message" required rows={5} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder:text-white/20 focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 outline-none transition-all font-light resize-none" placeholder="Tell us about the application, website, or digital effect you want to build..."></textarea>
+                </div>
+
+                <button 
+                  disabled={isSubmitting}
+                  className="w-full glow-effect flex items-center justify-center gap-4 px-8 py-5 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-xs tracking-[0.2em] uppercase font-bold hover:bg-[#D4AF37]/20 transition-all text-[#D4AF37] group disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Transmitting...' : 
+                   submitStatus === 'success' ? 'Transmission Successful!' : 
+                   submitStatus === 'error' ? 'Transmission Failed - Try Again' : 
+                   'Transmit Message'}
+                  {!isSubmitting && submitStatus === 'idle' && <Send className="w-4 h-4 group-hover:translate-x-2 group-hover:-translate-y-1 transition-transform" />}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="py-16 px-6 border-t border-white/10 relative z-10 bg-[#1E1C22]">
