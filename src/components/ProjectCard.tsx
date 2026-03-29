@@ -28,13 +28,16 @@ export default function ProjectCard({ title, description, tags, link, icon, colo
   const IconComponent = icon === 'github' ? Github : icon === 'terminal' ? Terminal : ExternalLink;
 
   return (
-    <motion.div
-      ref={cardRef}
+    <motion.a
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+      ref={cardRef as any}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       whileHover={{ y: -10 }}
-      className="group relative rounded-3xl overflow-hidden glass-panel border border-white/10 cursor-none"
+      className="group relative rounded-3xl overflow-hidden glass-panel border border-white/10 cursor-pointer block"
     >
       {/* Spotlight effect */}
       <motion.div
@@ -44,19 +47,16 @@ export default function ProjectCard({ title, description, tags, link, icon, colo
         }}
       />
       
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-0" />
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-0 pointer-events-none" />
       
-      <div className="relative z-10 p-10 h-full flex flex-col">
+      <div className="relative z-10 p-10 h-full flex flex-col pointer-events-none">
         <div className="flex justify-between items-start mb-8">
           <h3 className="text-4xl font-bold">{title}</h3>
-          <a 
-            href={link} 
-            target="_blank" 
-            rel="noreferrer" 
-            className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-colors"
+          <div 
+            className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors"
           >
             <IconComponent className="w-5 h-5" />
-          </a>
+          </div>
         </div>
         <p className="text-lg text-white/60 mb-8 flex-grow">
           {description}
@@ -67,6 +67,6 @@ export default function ProjectCard({ title, description, tags, link, icon, colo
           ))}
         </div>
       </div>
-    </motion.div>
+    </motion.a>
   );
 }
