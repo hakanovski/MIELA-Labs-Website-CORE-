@@ -1,17 +1,61 @@
-import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Terminal, Code2, Cpu, Globe, ArrowRight, Github, ExternalLink, Sparkles, Hexagon, Network, BrainCircuit, Palette, Maximize2, X, Mail, Phone, Send } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useState, useEffect } from 'react';
+import Lenis from 'lenis';
 import MysticAura from './components/MysticAura';
 import ProjectCard from './components/ProjectCard';
 import ShaderCanvas from './components/ShaderCanvas';
+import CustomCursor from './components/CustomCursor';
+import QuantumNebulaCanvas from './components/QuantumNebulaCanvas';
+import LiquidLensCanvas from './components/LiquidLensCanvas';
+import DeepFlowCanvas from './components/DeepFlowCanvas';
+import GalleryView from './components/GalleryView';
 import { ayahuascaFrag } from './shaders/ayahuasca';
+import { unifiedShipiboFrag } from './shaders/unifiedShipibo';
+import { burntPlasmaFrag } from './shaders/burntPlasma';
 
 const digitalArtifacts = [
   { 
     id: 'ayahuasca', 
     title: "The Shipibo Gateway", 
     category: "Generative Art / WebGL", 
+    type: 'shader',
     frag: ayahuascaFrag 
+  },
+  {
+    id: 'quantum-nebula',
+    title: "Quantum Nebula",
+    category: "Interactive WebGL2",
+    type: 'component',
+    component: <QuantumNebulaCanvas />
+  },
+  {
+    id: 'unified-shipibo',
+    title: "The Unified Shipibo",
+    category: "Generative Art / WebGL",
+    type: 'shader',
+    frag: unifiedShipiboFrag
+  },
+  {
+    id: 'burnt-plasma',
+    title: "Burnt Plasma",
+    category: "Domain Warping / WebGL",
+    type: 'shader',
+    frag: burntPlasmaFrag
+  },
+  {
+    id: 'liquid-lens',
+    title: "Liquid Lens",
+    category: "Interactive Shader",
+    type: 'component',
+    component: <LiquidLensCanvas />
+  },
+  {
+    id: 'deep-flow',
+    title: "Deep Flow",
+    category: "Abstract Art",
+    type: 'component',
+    component: <DeepFlowCanvas />
   }
 ];
 
@@ -31,10 +75,30 @@ const PillarHeader = ({ title, subtitle, number, color = "#C5A059" }: { title: s
 );
 
 export default function App() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [selectedProject, setSelectedProject] = useState<typeof digitalArtifacts[0] | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    const lenis = new Lenis({
+      lerp: 0.08,
+      smoothWheel: true,
+    });
+
+    let rafId: number;
+    function raf(time: number) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
+  }, []);
 
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,16 +131,10 @@ export default function App() {
     setTimeout(() => setSubmitStatus('idle'), 5000);
   };
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
-
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, -200]);
-
   return (
-    <div ref={containerRef} className="relative min-h-screen text-[#e0e0e0] selection:bg-[#8B5CF6]/30 selection:text-white font-sans bg-[#1E1C22]">
+    <div className="relative min-h-screen text-[#e0e0e0] selection:bg-[#8B5CF6]/30 selection:text-white font-sans bg-[#1E1C22] overflow-x-hidden">
+      <CustomCursor />
+
       {/* Digital Sorcery: SVG Filter to remove white background mathematically */}
       <svg width="0" height="0" className="absolute pointer-events-none">
         <filter id="remove-white" colorInterpolationFilters="sRGB">
@@ -117,8 +175,8 @@ export default function App() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 pt-20 overflow-hidden">
-        <div className="max-w-6xl mx-auto text-center z-10">
+      <section className="relative min-h-screen flex items-center justify-center px-6 pt-40 overflow-hidden">
+        <div className="max-w-6xl mx-auto text-center z-10 mt-16">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -132,7 +190,7 @@ export default function App() {
             >
               <div className="w-12 h-[1px] bg-[#C5A059]/50" />
               <h2 className="text-[#C5A059] text-[10px] md:text-xs tracking-[0.5em] uppercase font-medium drop-shadow-[0_0_8px_rgba(197,160,89,0.5)]">
-                The Technomancy Institute
+                Advanced Software & Digital Media
               </h2>
               <div className="w-12 h-[1px] bg-[#8B5CF6]/50" />
             </motion.div>
@@ -143,9 +201,8 @@ export default function App() {
                 LABS
               </span>
             </h1>
-            <p className="text-lg md:text-2xl text-white/40 max-w-3xl mx-auto font-light leading-relaxed mb-16 tracking-wide">
-              Forging digital artifacts at the intersection of esoteric wisdom and edge technology. 
-              A foundry where code becomes an incantation.
+            <p className="text-lg md:text-2xl text-white/60 max-w-4xl mx-auto font-light leading-relaxed mb-16 tracking-wide">
+              Architecting high-performance digital experiences, custom software solutions, and cutting-edge web applications. We specialize in GenAI, RAG orchestration, AI governance, and TEVV (Testing, Evaluation, Verification, and Validation). Our software architectures are fully AI-driven, integrating the world's most advanced models to transform complex business challenges into elegant, scalable, and immersive technological realities.
             </p>
             
             <motion.a 
@@ -154,7 +211,7 @@ export default function App() {
               href="#art"
               className="glow-effect px-12 py-5 bg-white/5 border border-white/10 text-white font-medium tracking-[0.2em] text-xs uppercase rounded-full inline-flex items-center gap-4 hover:bg-white/10 transition-all"
             >
-              Initiate Sequence <ArrowRight className="w-4 h-4 text-[#8B5CF6]" />
+              Explore Capabilities <ArrowRight className="w-4 h-4 text-[#8B5CF6]" />
             </motion.a>
           </motion.div>
         </div>
@@ -173,7 +230,7 @@ export default function App() {
       {/* PILLAR 01: DIGITAL ART & INNOVATION */}
       <section id="art" className="py-32 px-6 relative z-10 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
-          <PillarHeader number="01" subtitle="Esoteric Engineering" title="Digital Art" color="#4C1D95" />
+          <PillarHeader number="01" subtitle="Creative Engineering" title="Digital Art" color="#4C1D95" />
           
           {/* The Digital Sorcery (Portfolio Grid) */}
           <div className="mt-20">
@@ -183,12 +240,12 @@ export default function App() {
                   <Palette className="w-5 h-5 text-[#D4AF37]" />
                   <h2 className="text-[10px] tracking-[0.4em] uppercase text-[#D4AF37] font-bold">Custom Digital Media Design</h2>
                 </div>
-                <h3 className="text-5xl md:text-6xl font-magick font-bold mb-6">The Digital Sorcery</h3>
+                <h3 className="text-5xl md:text-6xl font-magick font-bold mb-6">Immersive Digital Experiences</h3>
                 <p className="text-xl text-white/70 font-light leading-relaxed mb-8">
-                  We don't just build websites; we forge digital artifacts. Whether you need to inject cutting-edge WebGL effects into your existing business platform, architect a complex web application from scratch, or code your wildest visions into reality, we are the catalyst. 
+                  We don't just build websites; we engineer immersive digital environments. Whether you need to inject cutting-edge WebGL effects into your existing business platform, architect a complex web application from scratch, or code your wildest visions into reality, we are the catalyst. 
                 </p>
                 <p className="text-lg text-white/50 font-light leading-relaxed mb-8">
-                  These are closed-source, high-end digital architectures tailored for visionaries.
+                  These are bespoke, high-performance digital architectures tailored for industry leaders.
                 </p>
                 <a 
                   href="#contact"
@@ -200,8 +257,8 @@ export default function App() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {digitalArtifacts.map(project => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {digitalArtifacts.slice(0, 6).map(project => (
                 <motion.div 
                   layoutId={`project-container-${project.id}`}
                   key={project.id} 
@@ -209,7 +266,7 @@ export default function App() {
                   className="group relative rounded-[2rem] overflow-hidden bg-[#13111A] border border-white/10 aspect-[4/3] cursor-pointer shadow-2xl"
                 >
                   <motion.div layoutId={`project-shader-${project.id}`} className="absolute inset-0 w-full h-full">
-                    <ShaderCanvas fragShader={project.frag} />
+                    {project.type === 'shader' ? <ShaderCanvas fragShader={project.frag} /> : project.component}
                   </motion.div>
                   
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1E1C22] via-[#1E1C22]/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500" />
@@ -222,51 +279,33 @@ export default function App() {
                 </motion.div>
               ))}
             </div>
-          </div>
 
-          {/* MPL Section */}
-          <motion.a 
-            href="https://github.com/hakanovski/MPL"
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="mt-32 glass-panel p-12 md:p-20 rounded-[3rem] border border-white/5 relative overflow-hidden group mb-12 cursor-pointer block"
-          >
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(76, 29, 149,0.15)_0%,transparent_70%)] rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-            
-            <div className="relative z-10 max-w-4xl">
-              <div className="flex items-center gap-3 mb-6">
-                <Code2 className="w-6 h-6 text-[#4C1D95]" />
-                <span className="text-[10px] tracking-[0.3em] uppercase text-[#4C1D95] font-bold">Flagship Protocol</span>
-              </div>
-              <h2 className="text-5xl md:text-7xl font-magick font-bold mb-8 leading-[0.9]">
-                Magick Programming <br/>Language <span className="text-white/30 text-4xl">(MPL)</span>
-              </h2>
-              <p className="text-xl text-white/70 leading-relaxed mb-8 font-light">
-                A highly experimental, visionary, and esoteric programming project. Merging ancient magick systems—John Dee, Austin Osman Spare, Kabbalah, and Hermeticism—with modern silicon and electricity.
-              </p>
-              <p className="text-lg text-white/50 leading-relaxed mb-12 font-light">
-                Originally prototyped in Python, MPL is now being architected from the ground up in <span className="text-white font-medium">Rust</span> and <span className="text-white font-medium">C</span>. The ultimate goal is to build an esoteric framework to create mystical, tech-driven applications.
-              </p>
-              <div 
-                className="glow-effect inline-flex items-center gap-4 px-8 py-4 rounded-full bg-white/5 border border-[#4C1D95]/30 text-xs tracking-[0.2em] uppercase font-bold group-hover:bg-[#4C1D95]/20 transition-all group/link"
+            <div className="mt-16 flex justify-center">
+              <button
+                onClick={() => setShowGallery(true)}
+                className="group relative px-8 py-4 bg-transparent border border-white/20 rounded-full overflow-hidden hover:border-[#C5A059]/50 transition-colors duration-500"
               >
-                <Github className="w-5 h-5" />
-                View Grimoire (Source)
-                <ArrowRight className="w-4 h-4 opacity-0 -translate-x-4 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all" />
-              </div>
+                <div className="absolute inset-0 bg-[#C5A059]/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
+                <span className="relative z-10 text-white text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+                  View Entire Exhibition
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                </span>
+              </button>
             </div>
-          </motion.a>
+          </div>
         </div>
       </section>
+
+      <GalleryView 
+        show={showGallery}
+        artifacts={digitalArtifacts} 
+        onClose={() => setShowGallery(false)} 
+      />
 
       {/* PILLAR 02: COMMUNITY */}
       <section id="community" className="py-32 px-6 relative z-10 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
-          <PillarHeader number="02" subtitle="Human Connection Protocol" title="Community" color="#f7931a" />
+          <PillarHeader number="02" subtitle="Decentralized Ecosystems" title="Community" color="#f7931a" />
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-20">
             {/* BitVid */}
@@ -362,16 +401,16 @@ export default function App() {
             <div className="relative z-10 max-w-4xl mx-auto text-center">
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-[#9D4EDD]/30 bg-[#9D4EDD]/10 mb-8">
                 <BrainCircuit className="w-4 h-4 text-[#9D4EDD] animate-pulse" />
-                <span className="text-[10px] tracking-[0.2em] uppercase text-[#9D4EDD] font-bold">Classified R&D</span>
+                <span className="text-[10px] tracking-[0.2em] uppercase text-[#9D4EDD] font-bold">GenAI & RAG Orchestration</span>
               </div>
               <h3 className="text-4xl md:text-6xl font-magick font-bold mb-8 leading-tight">
-                Architecting <br/>Invisible Systems
+                Architecting <br/>Autonomous Systems
               </h3>
               <p className="text-xl text-white/70 leading-relaxed mb-8 font-light">
-                MIELA Labs is currently developing a suite of disruptive, niche AI applications. We don't just build wrappers; we engineer cognitive systems that operate seamlessly in the background.
+                MIELA Labs is at the bleeding edge of Artificial Intelligence. We don't just build wrappers; we engineer full-stack, AI-native cognitive systems. Our expertise spans advanced GenAI integration, complex RAG (Retrieval-Augmented Generation) orchestration, and robust AI Governance frameworks.
               </p>
               <p className="text-lg text-white/50 leading-relaxed font-light">
-                Our focus is on hyper-specialized autonomous agents, predictive market models, and generative systems that redefine human-computer symbiosis. <span className="text-[#9D4EDD] italic">Projects currently in stealth mode.</span>
+                We specialize in TEVV (Testing, Evaluation, Verification, and Validation) to ensure our hyper-specialized autonomous agents and predictive models operate securely and flawlessly. <span className="text-[#9D4EDD] italic">We are redefining human-computer symbiosis.</span>
               </p>
             </div>
           </motion.div>
@@ -382,6 +421,7 @@ export default function App() {
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
+            key={`modal-${selectedProject.id}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -392,7 +432,7 @@ export default function App() {
               className="relative w-full h-full max-w-7xl mx-auto rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-[#13111A] border border-white/10 shadow-[0_0_100px_rgba(157,78,221,0.2)]"
             >
               <motion.div layoutId={`project-shader-${selectedProject.id}`} className="absolute inset-0 w-full h-full">
-                <ShaderCanvas fragShader={selectedProject.frag} />
+                {selectedProject.type === 'shader' ? <ShaderCanvas fragShader={selectedProject.frag} /> : selectedProject.component}
               </motion.div>
               
               <button 
@@ -409,7 +449,7 @@ export default function App() {
       {/* PILLAR 04: CONTACT */}
       <section id="contact" className="py-32 px-6 relative z-10 border-t border-white/5 bg-[#13111A]">
         <div className="max-w-7xl mx-auto">
-          <PillarHeader number="04" subtitle="Secure Channel" title="Initiate Contact" color="#D4AF37" />
+          <PillarHeader number="04" subtitle="Direct Communication" title="Partner With Us" color="#D4AF37" />
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mt-20">
             {/* Contact Info */}
@@ -478,10 +518,10 @@ export default function App() {
                   disabled={isSubmitting}
                   className="w-full glow-effect flex items-center justify-center gap-4 px-8 py-5 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-xs tracking-[0.2em] uppercase font-bold hover:bg-[#D4AF37]/20 transition-all text-[#D4AF37] group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Transmitting...' : 
-                   submitStatus === 'success' ? 'Transmission Successful!' : 
-                   submitStatus === 'error' ? 'Transmission Failed - Try Again' : 
-                   'Transmit Message'}
+                  {isSubmitting ? 'Sending...' : 
+                   submitStatus === 'success' ? 'Message Sent Successfully!' : 
+                   submitStatus === 'error' ? 'Failed to Send - Try Again' : 
+                   'Send Message'}
                   {!isSubmitting && submitStatus === 'idle' && <Send className="w-4 h-4 group-hover:translate-x-2 group-hover:-translate-y-1 transition-transform" />}
                 </button>
               </form>
@@ -491,22 +531,58 @@ export default function App() {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 px-6 border-t border-white/10 relative z-10 bg-[#1E1C22]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center">
+      <footer className="py-24 px-6 border-t border-white/10 relative z-10 bg-[#020202]">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 mb-16">
+          <div className="md:col-span-2">
             <img 
               src="https://i.imgur.com/Y8QaoPd.png" 
               alt="MIELA Labs Official Logo" 
-              className="h-20 md:h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+              className="h-24 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity mb-8 mix-blend-screen"
               style={{ filter: 'url(#remove-white)' }}
               referrerPolicy="no-referrer"
             />
+            <p className="text-white/50 font-light leading-relaxed max-w-md">
+              Architecting the future of digital experiences through advanced Artificial Intelligence, decentralized systems, and immersive WebGL environments.
+            </p>
           </div>
-          <div className="text-white/40 text-[10px] tracking-[0.3em] uppercase font-medium">
-            EST. 2025 // MCKINNEY, TX
+          
+          <div>
+            <h4 className="text-white font-bold tracking-[0.2em] uppercase text-xs mb-6">Core Capabilities</h4>
+            <ul className="space-y-4 text-white/50 font-light text-sm">
+              <li className="hover:text-[#D4AF37] transition-colors cursor-pointer">GenAI & RAG Orchestration</li>
+              <li className="hover:text-[#D4AF37] transition-colors cursor-pointer">AI Governance & TEVV</li>
+              <li className="hover:text-[#D4AF37] transition-colors cursor-pointer">Decentralized Systems (Web3)</li>
+              <li className="hover:text-[#D4AF37] transition-colors cursor-pointer">Immersive WebGL & 3D</li>
+            </ul>
           </div>
-          <div className="text-white/40 text-[10px] tracking-[0.3em] uppercase font-medium">
-            © 2026 All Rights Reserved.
+
+          <div>
+            <h4 className="text-white font-bold tracking-[0.2em] uppercase text-xs mb-6">Direct Contact</h4>
+            <ul className="space-y-4 text-white/50 font-light text-sm">
+              <li>
+                <a href="mailto:contact@mielalabs.proton.me" className="hover:text-[#D4AF37] transition-colors flex items-center gap-2">
+                  <Mail className="w-4 h-4" /> contact@mielalabs.proton.me
+                </a>
+              </li>
+              <li>
+                <a href="tel:+14693217389" className="hover:text-[#D4AF37] transition-colors flex items-center gap-2">
+                  <Phone className="w-4 h-4" /> +1 (469) 321-7389
+                </a>
+              </li>
+              <li className="pt-4 text-xs tracking-[0.2em] uppercase text-white/30">
+                McKinney, TX
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-white/30 text-[10px] tracking-[0.3em] uppercase font-medium">
+            © 2026 MIELA LABS. ALL RIGHTS RESERVED.
+          </div>
+          <div className="flex gap-6 text-white/30 text-[10px] tracking-[0.3em] uppercase font-medium">
+            <span className="hover:text-white transition-colors cursor-pointer">Privacy Policy</span>
+            <span className="hover:text-white transition-colors cursor-pointer">Terms of Service</span>
           </div>
         </div>
       </footer>

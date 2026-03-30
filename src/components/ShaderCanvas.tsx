@@ -80,8 +80,8 @@ export default function ShaderCanvas({ fragShader, className = '' }: ShaderCanva
     const render = () => {
       if (!isIntersecting) return;
 
-      const displayWidth = canvas.clientWidth;
-      const displayHeight = canvas.clientHeight;
+      const displayWidth = Math.floor(canvas.clientWidth / 2);
+      const displayHeight = Math.floor(canvas.clientHeight / 2);
       
       if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
         canvas.width = displayWidth;
@@ -100,10 +100,9 @@ export default function ShaderCanvas({ fragShader, className = '' }: ShaderCanva
 
     const observer = new IntersectionObserver((entries) => {
       isIntersecting = entries[0].isIntersecting;
+      cancelAnimationFrame(animationFrameId);
       if (isIntersecting) {
         render();
-      } else {
-        cancelAnimationFrame(animationFrameId);
       }
     });
     
